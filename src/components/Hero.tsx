@@ -3,6 +3,7 @@ import { ArrowRight, Play, ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { motion, useScroll, useTransform, AnimatePresence } from "framer-motion";
 import { useRef } from "react";
+import AnimatedCounter from "./AnimatedCounter";
 import heroBg from "@/assets/hero-bg.jpg";
 import gallery1 from "@/assets/gallery-1.jpg";
 import gallery2 from "@/assets/gallery-2.jpg";
@@ -14,24 +15,44 @@ const slides = [
     badge: "Professional Landscaping Services",
     title: ["Transform Your", "Outdoor Space", "Into Paradise"],
     description: "We create stunning outdoor environments that enhance your property's beauty and value. From lawn care to complete landscape design, trust the experts.",
+    stats: [
+      { value: 25, suffix: "+", label: "Years Experience" },
+      { value: 2500, suffix: "+", label: "Projects Done" },
+      { value: 99, suffix: "%", label: "Happy Clients" }
+    ]
   },
   {
     image: gallery1,
     badge: "Award Winning Designs",
     title: ["Create Your", "Dream Garden", "With Us"],
     description: "Experience the art of landscaping with our expert team. We bring creativity and precision to every project we undertake.",
+    stats: [
+      { value: 150, suffix: "+", label: "Design Awards" },
+      { value: 500, suffix: "+", label: "Garden Projects" },
+      { value: 100, suffix: "%", label: "Satisfaction" }
+    ]
   },
   {
     image: gallery2,
     badge: "25+ Years of Excellence",
     title: ["Beautiful", "Landscapes", "Built to Last"],
     description: "Quality craftsmanship and sustainable practices define our work. Your outdoor space deserves the best care and attention.",
+    stats: [
+      { value: 50, suffix: "+", label: "Expert Team" },
+      { value: 1000, suffix: "+", label: "Trees Planted" },
+      { value: 24, suffix: "/7", label: "Support" }
+    ]
   },
   {
     image: gallery3,
     badge: "Complete Outdoor Solutions",
     title: ["Elevate Your", "Property Value", "Today"],
     description: "From concept to completion, we handle every aspect of your landscaping needs. Let us transform your vision into reality.",
+    stats: [
+      { value: 35, suffix: "%", label: "Value Increase" },
+      { value: 800, suffix: "+", label: "Happy Families" },
+      { value: 15, suffix: "+", label: "Service Areas" }
+    ]
   },
 ];
 
@@ -89,6 +110,7 @@ const Hero = () => {
   const containerRef = useRef(null);
   const [currentSlide, setCurrentSlide] = useState(0);
   const [direction, setDirection] = useState(0);
+  const [statsKey, setStatsKey] = useState(0);
   
   const { scrollYProgress } = useScroll({
     target: containerRef,
@@ -101,16 +123,18 @@ const Hero = () => {
   const nextSlide = useCallback(() => {
     setDirection(1);
     setCurrentSlide((prev) => (prev + 1) % slides.length);
+    setStatsKey(prev => prev + 1);
   }, []);
 
   const prevSlide = useCallback(() => {
     setDirection(-1);
     setCurrentSlide((prev) => (prev - 1 + slides.length) % slides.length);
+    setStatsKey(prev => prev + 1);
   }, []);
 
   // Auto-advance slides
   useEffect(() => {
-    const timer = setInterval(nextSlide, 6000);
+    const timer = setInterval(nextSlide, 7000);
     return () => clearInterval(timer);
   }, [nextSlide]);
 
@@ -272,26 +296,29 @@ const Hero = () => {
             </motion.div>
           </AnimatePresence>
 
-          {/* Stats */}
+          {/* Stats with Animated Counters */}
           <motion.div 
+            key={`stats-${statsKey}`}
             initial={{ opacity: 0, y: 40 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.8 }}
             className="grid grid-cols-3 gap-8 mt-12 pt-8 border-t border-white/20"
           >
-            {[
-              { value: "25+", label: "Years Experience" },
-              { value: "2.5K", label: "Projects Done" },
-              { value: "99%", label: "Happy Clients" }
-            ].map((stat, index) => (
+            {slides[currentSlide].stats.map((stat, index) => (
               <motion.div 
-                key={stat.label}
+                key={`${stat.label}-${statsKey}`}
                 initial={{ opacity: 0, scale: 0.8 }}
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ duration: 0.4, delay: 0.9 + index * 0.1 }}
                 whileHover={{ scale: 1.05 }}
               >
-                <p className="font-heading text-3xl md:text-4xl text-leaf font-bold drop-shadow-lg">{stat.value}</p>
+                <p className="font-heading text-3xl md:text-4xl text-leaf font-bold drop-shadow-lg">
+                  <AnimatedCounter 
+                    end={stat.value} 
+                    suffix={stat.suffix}
+                    duration={2000}
+                  />
+                </p>
                 <p className="text-white/80 text-sm mt-1">{stat.label}</p>
               </motion.div>
             ))}
@@ -317,6 +344,7 @@ const Hero = () => {
               onClick={() => {
                 setDirection(index > currentSlide ? 1 : -1);
                 setCurrentSlide(index);
+                setStatsKey(prev => prev + 1);
               }}
               whileHover={{ scale: 1.2 }}
               className={`h-2 rounded-full transition-all duration-300 ${

@@ -1,6 +1,7 @@
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, Leaf, Users, Trophy, ThumbsUp } from "lucide-react";
 import { motion } from "framer-motion";
 import { useScrollAnimation, fadeInUp, staggerContainer, staggerItem } from "@/hooks/useScrollAnimation";
+import AnimatedCounter from "./AnimatedCounter";
 import serviceLawn from "@/assets/service-lawn.jpg";
 import serviceGarden from "@/assets/service-garden.jpg";
 import serviceTree from "@/assets/service-tree.jpg";
@@ -33,9 +34,17 @@ const services = [
   },
 ];
 
+const serviceStats = [
+  { icon: Leaf, value: 2500, suffix: "+", label: "Projects Completed" },
+  { icon: Users, value: 1800, suffix: "+", label: "Happy Clients" },
+  { icon: Trophy, value: 45, suffix: "+", label: "Awards Won" },
+  { icon: ThumbsUp, value: 99, suffix: "%", label: "Satisfaction Rate" },
+];
+
 const Services = () => {
   const { ref: headerRef, isInView: headerInView } = useScrollAnimation();
   const { ref: gridRef, isInView: gridInView } = useScrollAnimation();
+  const { ref: statsRef, isInView: statsInView } = useScrollAnimation();
 
   return (
     <section id="services" className="section-padding bg-cream overflow-hidden">
@@ -58,6 +67,34 @@ const Services = () => {
             From routine maintenance to complete landscape transformations, we offer
             comprehensive services tailored to your needs.
           </p>
+        </motion.div>
+
+        {/* Stats Bar */}
+        <motion.div
+          ref={statsRef}
+          initial="hidden"
+          animate={statsInView ? "visible" : "hidden"}
+          variants={staggerContainer}
+          className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-16 bg-primary rounded-2xl p-8"
+        >
+          {serviceStats.map((stat) => (
+            <motion.div
+              key={stat.label}
+              variants={staggerItem}
+              whileHover={{ scale: 1.05 }}
+              className="text-center"
+            >
+              <stat.icon className="h-8 w-8 text-leaf mx-auto mb-3" />
+              <p className="font-heading text-3xl md:text-4xl text-primary-foreground font-bold">
+                <AnimatedCounter 
+                  end={stat.value} 
+                  suffix={stat.suffix}
+                  duration={2500}
+                />
+              </p>
+              <p className="text-primary-foreground/70 text-sm mt-1">{stat.label}</p>
+            </motion.div>
+          ))}
         </motion.div>
 
         {/* Services Grid */}

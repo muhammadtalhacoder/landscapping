@@ -1,10 +1,18 @@
-import { Phone, ArrowRight } from "lucide-react";
+import { Phone, ArrowRight, Star, CheckCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
-import { useScrollAnimation, fadeInUp } from "@/hooks/useScrollAnimation";
+import { useScrollAnimation, fadeInUp, staggerContainer, staggerItem } from "@/hooks/useScrollAnimation";
+import AnimatedCounter from "./AnimatedCounter";
+
+const ctaStats = [
+  { value: 25, suffix: "+", label: "Years of Excellence" },
+  { value: 2500, suffix: "+", label: "Projects Delivered" },
+  { value: 99, suffix: "%", label: "Client Satisfaction" },
+];
 
 const CTA = () => {
   const { ref, isInView } = useScrollAnimation();
+  const { ref: statsRef, isInView: statsInView } = useScrollAnimation();
 
   return (
     <section className="py-20 bg-primary relative overflow-hidden">
@@ -35,8 +43,20 @@ const CTA = () => {
         variants={fadeInUp}
         className="container-custom relative"
       >
-        <div className="flex flex-col lg:flex-row items-center justify-between gap-8">
-          <div className="text-center lg:text-left">
+        <div className="flex flex-col lg:flex-row items-center justify-between gap-12">
+          <div className="text-center lg:text-left flex-1">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
+              transition={{ delay: 0.1 }}
+              className="flex items-center gap-2 justify-center lg:justify-start mb-4"
+            >
+              {[...Array(5)].map((_, i) => (
+                <Star key={i} className="h-5 w-5 fill-gold text-gold" />
+              ))}
+              <span className="text-primary-foreground/80 ml-2">5-Star Rated Service</span>
+            </motion.div>
+            
             <motion.h2 
               initial={{ opacity: 0, y: 30 }}
               animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
@@ -54,13 +74,28 @@ const CTA = () => {
               Get started with a free consultation. Our experts will help you
               design the perfect outdoor space for your home.
             </motion.p>
+
+            {/* Trust Indicators */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
+              transition={{ delay: 0.4 }}
+              className="flex flex-wrap gap-4 mt-6 justify-center lg:justify-start"
+            >
+              {["Free Estimates", "Licensed & Insured", "Same Day Response"].map((item) => (
+                <div key={item} className="flex items-center gap-2 text-primary-foreground/90">
+                  <CheckCircle className="h-4 w-4 text-leaf" />
+                  <span className="text-sm">{item}</span>
+                </div>
+              ))}
+            </motion.div>
           </div>
 
           <motion.div 
             initial={{ opacity: 0, x: 40 }}
             animate={isInView ? { opacity: 1, x: 0 } : { opacity: 0, x: 40 }}
             transition={{ delay: 0.4 }}
-            className="flex flex-col sm:flex-row gap-4"
+            className="flex flex-col gap-4"
           >
             <motion.div whileHover={{ scale: 1.05, y: -2 }} whileTap={{ scale: 0.98 }}>
               <Button className="bg-primary-foreground text-primary px-8 py-6 rounded-full font-medium text-lg transition-all duration-300 hover:bg-leaf hover:text-primary-foreground group">
@@ -79,6 +114,33 @@ const CTA = () => {
             </motion.a>
           </motion.div>
         </div>
+
+        {/* Stats Row */}
+        <motion.div
+          ref={statsRef}
+          initial="hidden"
+          animate={statsInView ? "visible" : "hidden"}
+          variants={staggerContainer}
+          className="grid grid-cols-3 gap-8 mt-12 pt-8 border-t border-primary-foreground/20"
+        >
+          {ctaStats.map((stat) => (
+            <motion.div
+              key={stat.label}
+              variants={staggerItem}
+              whileHover={{ scale: 1.05 }}
+              className="text-center"
+            >
+              <p className="font-heading text-3xl md:text-4xl text-leaf font-bold">
+                <AnimatedCounter 
+                  end={stat.value} 
+                  suffix={stat.suffix}
+                  duration={2000}
+                />
+              </p>
+              <p className="text-primary-foreground/70 text-sm mt-1">{stat.label}</p>
+            </motion.div>
+          ))}
+        </motion.div>
       </motion.div>
     </section>
   );
