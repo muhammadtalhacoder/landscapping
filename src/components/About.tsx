@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { motion, useScroll, useTransform } from "framer-motion";
 import { useRef } from "react";
 import { useScrollAnimation, fadeInLeft, fadeInRight, staggerContainer, staggerItem } from "@/hooks/useScrollAnimation";
+import AnimatedCounter from "./AnimatedCounter";
 import aboutTeam from "@/assets/about-team.jpg";
 
 const features = [
@@ -13,9 +14,9 @@ const features = [
 ];
 
 const stats = [
-  { icon: Award, value: "25+", label: "Years Experience" },
-  { icon: Users, value: "50+", label: "Team Members" },
-  { icon: Clock, value: "24/7", label: "Customer Support" },
+  { icon: Award, value: 25, suffix: "+", label: "Years Experience" },
+  { icon: Users, value: 50, suffix: "+", label: "Team Members" },
+  { icon: Clock, value: 24, suffix: "/7", label: "Customer Support" },
 ];
 
 const About = () => {
@@ -150,14 +151,14 @@ const About = () => {
               </Button>
             </motion.div>
 
-            {/* Stats */}
+            {/* Stats with Animated Counters */}
             <motion.div 
               initial="hidden"
               animate={contentInView ? "visible" : "hidden"}
               variants={staggerContainer}
               className="grid grid-cols-3 gap-6 mt-12 pt-8 border-t border-border"
             >
-              {stats.map((stat, index) => (
+              {stats.map((stat) => (
                 <motion.div 
                   key={stat.label} 
                   variants={staggerItem}
@@ -171,7 +172,11 @@ const About = () => {
                     <stat.icon className="h-8 w-8 text-primary mx-auto mb-2" />
                   </motion.div>
                   <p className="font-heading text-2xl md:text-3xl text-foreground font-bold">
-                    {stat.value}
+                    <AnimatedCounter 
+                      end={stat.value} 
+                      suffix={stat.suffix}
+                      duration={2000}
+                    />
                   </p>
                   <p className="text-muted-foreground text-sm">{stat.label}</p>
                 </motion.div>
