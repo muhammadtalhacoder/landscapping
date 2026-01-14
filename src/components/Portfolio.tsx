@@ -1,5 +1,7 @@
 import { useState } from "react";
 import { ArrowUpRight } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import { useScrollAnimation, fadeInUp, staggerContainer, staggerItem } from "@/hooks/useScrollAnimation";
 import gallery1 from "@/assets/gallery-1.jpg";
 import gallery2 from "@/assets/gallery-2.jpg";
 import gallery3 from "@/assets/gallery-3.jpg";
@@ -38,12 +40,20 @@ const projects = [
 
 const Portfolio = () => {
   const [hoveredId, setHoveredId] = useState<number | null>(null);
+  const { ref: headerRef, isInView: headerInView } = useScrollAnimation();
+  const { ref: gridRef, isInView: gridInView } = useScrollAnimation();
 
   return (
-    <section id="portfolio" className="section-padding bg-forest-dark">
+    <section id="portfolio" className="section-padding bg-forest-dark overflow-hidden">
       <div className="container-custom">
         {/* Section Header */}
-        <div className="text-center max-w-2xl mx-auto mb-16">
+        <motion.div 
+          ref={headerRef}
+          initial="hidden"
+          animate={headerInView ? "visible" : "hidden"}
+          variants={fadeInUp}
+          className="text-center max-w-2xl mx-auto mb-16"
+        >
           <span className="inline-block text-leaf font-semibold text-sm uppercase tracking-wider mb-3">
             Our Portfolio
           </span>
@@ -54,28 +64,39 @@ const Portfolio = () => {
             Explore our latest landscape transformations and see the quality of
             our craftsmanship firsthand.
           </p>
-        </div>
+        </motion.div>
 
         {/* Gallery Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <motion.div 
+          ref={gridRef}
+          initial="hidden"
+          animate={gridInView ? "visible" : "hidden"}
+          variants={staggerContainer}
+          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+        >
           {/* Large Project */}
-          <div
+          <motion.div
+            variants={staggerItem}
             className="lg:col-span-2 lg:row-span-1 group relative rounded-2xl overflow-hidden cursor-pointer"
             onMouseEnter={() => setHoveredId(1)}
             onMouseLeave={() => setHoveredId(null)}
+            whileHover={{ scale: 1.02 }}
+            transition={{ duration: 0.4 }}
           >
             <div className="aspect-[16/9] overflow-hidden">
-              <img
+              <motion.img
                 src={projects[0].image}
                 alt={projects[0].title}
-                className={`w-full h-full object-cover transition-transform duration-700 ${
-                  hoveredId === 1 ? "scale-110" : "scale-100"
-                }`}
+                className="w-full h-full object-cover"
+                animate={{ scale: hoveredId === 1 ? 1.1 : 1 }}
+                transition={{ duration: 0.7 }}
               />
             </div>
-            <div className={`absolute inset-0 bg-gradient-to-t from-forest-dark/90 via-forest-dark/30 to-transparent transition-opacity duration-300 ${
-              hoveredId === 1 ? "opacity-100" : "opacity-70"
-            }`} />
+            <motion.div 
+              className="absolute inset-0 bg-gradient-to-t from-forest-dark/90 via-forest-dark/30 to-transparent"
+              animate={{ opacity: hoveredId === 1 ? 1 : 0.7 }}
+              transition={{ duration: 0.3 }}
+            />
             <div className="absolute bottom-0 left-0 right-0 p-6">
               <span className="inline-block text-leaf text-sm font-medium mb-2">
                 {projects[0].category}
@@ -83,35 +104,48 @@ const Portfolio = () => {
               <h3 className="font-heading text-2xl md:text-3xl text-primary-foreground mb-2">
                 {projects[0].title}
               </h3>
-              <div className={`flex items-center gap-2 text-primary-foreground transition-all duration-300 ${
-                hoveredId === 1 ? "translate-x-0 opacity-100" : "-translate-x-4 opacity-0"
-              }`}>
-                <span className="font-medium">View Project</span>
-                <ArrowUpRight className="h-5 w-5" />
-              </div>
+              <AnimatePresence>
+                {hoveredId === 1 && (
+                  <motion.div 
+                    initial={{ x: -20, opacity: 0 }}
+                    animate={{ x: 0, opacity: 1 }}
+                    exit={{ x: -20, opacity: 0 }}
+                    transition={{ duration: 0.3 }}
+                    className="flex items-center gap-2 text-primary-foreground"
+                  >
+                    <span className="font-medium">View Project</span>
+                    <ArrowUpRight className="h-5 w-5" />
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </div>
-          </div>
+          </motion.div>
 
           {/* Other Projects */}
-          {projects.slice(1).map((project) => (
-            <div
+          {projects.slice(1).map((project, index) => (
+            <motion.div
               key={project.id}
+              variants={staggerItem}
               className="group relative rounded-2xl overflow-hidden cursor-pointer"
               onMouseEnter={() => setHoveredId(project.id)}
               onMouseLeave={() => setHoveredId(null)}
+              whileHover={{ scale: 1.02, y: -4 }}
+              transition={{ duration: 0.4 }}
             >
               <div className={`overflow-hidden ${project.size === 'tall' ? 'aspect-[3/4]' : 'aspect-square'}`}>
-                <img
+                <motion.img
                   src={project.image}
                   alt={project.title}
-                  className={`w-full h-full object-cover transition-transform duration-700 ${
-                    hoveredId === project.id ? "scale-110" : "scale-100"
-                  }`}
+                  className="w-full h-full object-cover"
+                  animate={{ scale: hoveredId === project.id ? 1.1 : 1 }}
+                  transition={{ duration: 0.7 }}
                 />
               </div>
-              <div className={`absolute inset-0 bg-gradient-to-t from-forest-dark/90 via-forest-dark/30 to-transparent transition-opacity duration-300 ${
-                hoveredId === project.id ? "opacity-100" : "opacity-70"
-              }`} />
+              <motion.div 
+                className="absolute inset-0 bg-gradient-to-t from-forest-dark/90 via-forest-dark/30 to-transparent"
+                animate={{ opacity: hoveredId === project.id ? 1 : 0.7 }}
+                transition={{ duration: 0.3 }}
+              />
               <div className="absolute bottom-0 left-0 right-0 p-5">
                 <span className="inline-block text-leaf text-sm font-medium mb-1">
                   {project.category}
@@ -119,27 +153,42 @@ const Portfolio = () => {
                 <h3 className="font-heading text-xl text-primary-foreground">
                   {project.title}
                 </h3>
-                <div className={`flex items-center gap-2 text-primary-foreground text-sm mt-2 transition-all duration-300 ${
-                  hoveredId === project.id ? "translate-x-0 opacity-100" : "-translate-x-4 opacity-0"
-                }`}>
-                  <span className="font-medium">View Project</span>
-                  <ArrowUpRight className="h-4 w-4" />
-                </div>
+                <AnimatePresence>
+                  {hoveredId === project.id && (
+                    <motion.div 
+                      initial={{ x: -20, opacity: 0 }}
+                      animate={{ x: 0, opacity: 1 }}
+                      exit={{ x: -20, opacity: 0 }}
+                      transition={{ duration: 0.3 }}
+                      className="flex items-center gap-2 text-primary-foreground text-sm mt-2"
+                    >
+                      <span className="font-medium">View Project</span>
+                      <ArrowUpRight className="h-4 w-4" />
+                    </motion.div>
+                  )}
+                </AnimatePresence>
               </div>
-            </div>
+            </motion.div>
           ))}
-        </div>
+        </motion.div>
 
         {/* View All Button */}
-        <div className="text-center mt-12">
-          <a
+        <motion.div 
+          initial={{ opacity: 0, y: 30 }}
+          animate={gridInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
+          transition={{ delay: 0.6 }}
+          className="text-center mt-12"
+        >
+          <motion.a
             href="#"
+            whileHover={{ scale: 1.05, y: -2 }}
+            whileTap={{ scale: 0.98 }}
             className="inline-flex items-center gap-2 text-primary-foreground border-2 border-primary-foreground/30 px-8 py-4 rounded-full font-medium transition-all duration-300 hover:bg-primary-foreground hover:text-forest-dark"
           >
             View All Projects
             <ArrowUpRight className="h-5 w-5" />
-          </a>
-        </div>
+          </motion.a>
+        </motion.div>
       </div>
     </section>
   );

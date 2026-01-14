@@ -1,5 +1,8 @@
 import { CheckCircle, Award, Users, Clock } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { motion, useScroll, useTransform } from "framer-motion";
+import { useRef } from "react";
+import { useScrollAnimation, fadeInLeft, fadeInRight, staggerContainer, staggerItem } from "@/hooks/useScrollAnimation";
 import aboutTeam from "@/assets/about-team.jpg";
 
 const features = [
@@ -16,40 +19,82 @@ const stats = [
 ];
 
 const About = () => {
+  const containerRef = useRef(null);
+  const { scrollYProgress } = useScroll({
+    target: containerRef,
+    offset: ["start end", "end start"]
+  });
+
+  const imageY = useTransform(scrollYProgress, [0, 1], [-50, 50]);
+  
+  const { ref: imageRef, isInView: imageInView } = useScrollAnimation();
+  const { ref: contentRef, isInView: contentInView } = useScrollAnimation();
+
   return (
-    <section id="about" className="section-padding bg-background">
+    <section ref={containerRef} id="about" className="section-padding bg-background overflow-hidden">
       <div className="container-custom">
         <div className="grid lg:grid-cols-2 gap-12 lg:gap-20 items-center">
           {/* Image Side */}
-          <div className="relative">
+          <motion.div 
+            ref={imageRef}
+            initial="hidden"
+            animate={imageInView ? "visible" : "hidden"}
+            variants={fadeInLeft}
+            className="relative"
+          >
             {/* Main Image */}
-            <div className="relative rounded-2xl overflow-hidden shadow-strong">
-              <img
+            <motion.div 
+              style={{ y: imageY }}
+              className="relative rounded-2xl overflow-hidden shadow-strong"
+            >
+              <motion.img
                 src={aboutTeam}
                 alt="Our landscaping team"
                 className="w-full h-auto object-cover"
+                whileHover={{ scale: 1.03 }}
+                transition={{ duration: 0.6 }}
               />
-            </div>
+            </motion.div>
 
             {/* Floating Card */}
-            <div className="absolute -bottom-8 -right-4 md:right-8 bg-primary text-primary-foreground p-6 rounded-2xl shadow-strong max-w-xs">
+            <motion.div 
+              initial={{ opacity: 0, y: 40, scale: 0.9 }}
+              animate={imageInView ? { opacity: 1, y: 0, scale: 1 } : { opacity: 0, y: 40, scale: 0.9 }}
+              transition={{ delay: 0.4, duration: 0.5 }}
+              whileHover={{ scale: 1.05, y: -5 }}
+              className="absolute -bottom-8 -right-4 md:right-8 bg-primary text-primary-foreground p-6 rounded-2xl shadow-strong max-w-xs"
+            >
               <div className="flex items-center gap-4">
-                <div className="w-16 h-16 bg-leaf rounded-full flex items-center justify-center flex-shrink-0">
+                <motion.div 
+                  className="w-16 h-16 bg-leaf rounded-full flex items-center justify-center flex-shrink-0"
+                  animate={{ rotate: [0, 5, -5, 0] }}
+                  transition={{ duration: 4, repeat: Infinity }}
+                >
                   <Award className="h-8 w-8" />
-                </div>
+                </motion.div>
                 <div>
                   <p className="font-heading text-2xl font-bold">Best In Class</p>
                   <p className="text-primary-foreground/80 text-sm">Award Winning Service</p>
                 </div>
               </div>
-            </div>
+            </motion.div>
 
             {/* Decorative Element */}
-            <div className="absolute -top-4 -left-4 w-24 h-24 border-2 border-leaf rounded-2xl -z-10" />
-          </div>
+            <motion.div 
+              initial={{ opacity: 0, scale: 0 }}
+              animate={imageInView ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 0 }}
+              transition={{ delay: 0.6, duration: 0.4 }}
+              className="absolute -top-4 -left-4 w-24 h-24 border-2 border-leaf rounded-2xl -z-10"
+            />
+          </motion.div>
 
           {/* Content Side */}
-          <div>
+          <motion.div
+            ref={contentRef}
+            initial="hidden"
+            animate={contentInView ? "visible" : "hidden"}
+            variants={fadeInRight}
+          >
             <span className="inline-block text-primary font-semibold text-sm uppercase tracking-wider mb-3">
               About GreenScape
             </span>
@@ -69,33 +114,70 @@ const About = () => {
             </p>
 
             {/* Features List */}
-            <div className="grid sm:grid-cols-2 gap-4 mb-8">
-              {features.map((feature) => (
-                <div key={feature} className="flex items-center gap-3">
-                  <CheckCircle className="h-5 w-5 text-primary flex-shrink-0" />
+            <motion.div 
+              initial="hidden"
+              animate={contentInView ? "visible" : "hidden"}
+              variants={staggerContainer}
+              className="grid sm:grid-cols-2 gap-4 mb-8"
+            >
+              {features.map((feature, index) => (
+                <motion.div 
+                  key={feature} 
+                  variants={staggerItem}
+                  whileHover={{ x: 4 }}
+                  className="flex items-center gap-3"
+                >
+                  <motion.div
+                    initial={{ scale: 0 }}
+                    animate={contentInView ? { scale: 1 } : { scale: 0 }}
+                    transition={{ delay: 0.5 + index * 0.1 }}
+                  >
+                    <CheckCircle className="h-5 w-5 text-primary flex-shrink-0" />
+                  </motion.div>
                   <span className="text-foreground font-medium">{feature}</span>
-                </div>
+                </motion.div>
               ))}
-            </div>
+            </motion.div>
 
             {/* CTA */}
-            <Button className="btn-primary">
-              Learn Our Story
-            </Button>
+            <motion.div
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.98 }}
+              className="inline-block"
+            >
+              <Button className="btn-primary">
+                Learn Our Story
+              </Button>
+            </motion.div>
 
             {/* Stats */}
-            <div className="grid grid-cols-3 gap-6 mt-12 pt-8 border-t border-border">
-              {stats.map((stat) => (
-                <div key={stat.label} className="text-center">
-                  <stat.icon className="h-8 w-8 text-primary mx-auto mb-2" />
+            <motion.div 
+              initial="hidden"
+              animate={contentInView ? "visible" : "hidden"}
+              variants={staggerContainer}
+              className="grid grid-cols-3 gap-6 mt-12 pt-8 border-t border-border"
+            >
+              {stats.map((stat, index) => (
+                <motion.div 
+                  key={stat.label} 
+                  variants={staggerItem}
+                  whileHover={{ scale: 1.1 }}
+                  className="text-center"
+                >
+                  <motion.div
+                    whileHover={{ rotate: 10 }}
+                    transition={{ type: "spring", stiffness: 300 }}
+                  >
+                    <stat.icon className="h-8 w-8 text-primary mx-auto mb-2" />
+                  </motion.div>
                   <p className="font-heading text-2xl md:text-3xl text-foreground font-bold">
                     {stat.value}
                   </p>
                   <p className="text-muted-foreground text-sm">{stat.label}</p>
-                </div>
+                </motion.div>
               ))}
-            </div>
-          </div>
+            </motion.div>
+          </motion.div>
         </div>
       </div>
     </section>

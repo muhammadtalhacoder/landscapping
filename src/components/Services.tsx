@@ -1,4 +1,6 @@
 import { ArrowRight } from "lucide-react";
+import { motion } from "framer-motion";
+import { useScrollAnimation, fadeInUp, staggerContainer, staggerItem } from "@/hooks/useScrollAnimation";
 import serviceLawn from "@/assets/service-lawn.jpg";
 import serviceGarden from "@/assets/service-garden.jpg";
 import serviceTree from "@/assets/service-tree.jpg";
@@ -32,11 +34,20 @@ const services = [
 ];
 
 const Services = () => {
+  const { ref: headerRef, isInView: headerInView } = useScrollAnimation();
+  const { ref: gridRef, isInView: gridInView } = useScrollAnimation();
+
   return (
-    <section id="services" className="section-padding bg-cream">
+    <section id="services" className="section-padding bg-cream overflow-hidden">
       <div className="container-custom">
         {/* Section Header */}
-        <div className="text-center max-w-2xl mx-auto mb-16">
+        <motion.div 
+          ref={headerRef}
+          initial="hidden"
+          animate={headerInView ? "visible" : "hidden"}
+          variants={fadeInUp}
+          className="text-center max-w-2xl mx-auto mb-16"
+        >
           <span className="inline-block text-primary font-semibold text-sm uppercase tracking-wider mb-3">
             Our Services
           </span>
@@ -47,22 +58,31 @@ const Services = () => {
             From routine maintenance to complete landscape transformations, we offer
             comprehensive services tailored to your needs.
           </p>
-        </div>
+        </motion.div>
 
         {/* Services Grid */}
-        <div className="grid md:grid-cols-2 gap-8">
+        <motion.div 
+          ref={gridRef}
+          initial="hidden"
+          animate={gridInView ? "visible" : "hidden"}
+          variants={staggerContainer}
+          className="grid md:grid-cols-2 gap-8"
+        >
           {services.map((service, index) => (
-            <div
+            <motion.div
               key={service.title}
-              className="group bg-background rounded-2xl overflow-hidden shadow-soft card-hover"
-              style={{ animationDelay: `${index * 0.1}s` }}
+              variants={staggerItem}
+              whileHover={{ y: -8, transition: { duration: 0.3 } }}
+              className="group bg-background rounded-2xl overflow-hidden shadow-soft"
             >
               {/* Image */}
               <div className="relative h-64 overflow-hidden">
-                <img
+                <motion.img
                   src={service.image}
                   alt={service.title}
-                  className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                  className="w-full h-full object-cover"
+                  whileHover={{ scale: 1.1 }}
+                  transition={{ duration: 0.7 }}
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-forest-dark/60 to-transparent" />
                 <div className="absolute bottom-4 left-4 right-4">
@@ -81,27 +101,29 @@ const Services = () => {
                 {/* Features */}
                 <div className="flex flex-wrap gap-2 mb-6">
                   {service.features.map((feature) => (
-                    <span
+                    <motion.span
                       key={feature}
-                      className="text-xs font-medium bg-muted text-muted-foreground px-3 py-1 rounded-full"
+                      whileHover={{ scale: 1.05 }}
+                      className="text-xs font-medium bg-muted text-muted-foreground px-3 py-1 rounded-full transition-colors hover:bg-primary hover:text-primary-foreground"
                     >
                       {feature}
-                    </span>
+                    </motion.span>
                   ))}
                 </div>
 
                 {/* Link */}
-                <a
+                <motion.a
                   href="#contact"
                   className="inline-flex items-center gap-2 text-primary font-semibold group/link"
+                  whileHover={{ x: 4 }}
                 >
                   Learn More
                   <ArrowRight className="h-4 w-4 transition-transform group-hover/link:translate-x-1" />
-                </a>
+                </motion.a>
               </div>
-            </div>
+            </motion.div>
           ))}
-        </div>
+        </motion.div>
       </div>
     </section>
   );
